@@ -1,12 +1,3 @@
-WebExtension.addExtensionRegister(() => {
-  const target = document.getElementsByTagName('table')[0];
-  if (!target) return;
-  const button = document.getElementById('myButton');
-  if (!button) {
-    target.insertAdjacentHTML('beforebegin', "<button id='myButton' onClick='postData();return false;'>Add POST data</button>");
-  }
-});
-
 function postData() {
   const url = 'http://localhost:8080/samples/POST/writePostData.jsp';
   WebExtension.sendHttpRequest('post', url, {

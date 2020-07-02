@@ -1,0 +1,19 @@
+package Updater;
+
+import java.util.Map;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import webextension.ResponseXmlUpdater;
+import webextension.annotation.WebExtensionFilter;
+
+@WebExtensionFilter(contentType="text/xml", servletPath="/Updater/")
+public class XmlUpdater extends ResponseXmlUpdater {
+
+  public boolean update(Map<String, String> context, Document document) throws Exception {
+    Element message = document.selectFirst("message");
+    if (message == null) return false;
+
+    message.append(" updated by XmlUpdater");
+    return true;
+  }
+}

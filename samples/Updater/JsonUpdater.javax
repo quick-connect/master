@@ -1,0 +1,21 @@
+package Updater;
+
+import java.util.Map;
+import javax.json.*;
+import webextension.ResponseJsonUpdater;
+import webextension.annotation.WebExtensionFilter;
+
+@WebExtensionFilter(contentType="application/json", servletPath="/Updater/")
+public class JsonUpdater extends ResponseJsonUpdater {
+
+  public JsonStructure update(Map<String, String> context, JsonStructure jsonStructure) throws Exception {
+    try {
+      JsonPointer pointer = Json.createPointer("/response/message");
+      JsonString message = (JsonString) pointer.getValue(jsonStructure);
+      JsonString newMessage = Json.createValue(message.getString() + " updated by JsonUpdater");
+      return pointer.add(jsonStructure, newMessage);
+    } catch (JsonException e) {
+      return null;
+    }
+  }
+}

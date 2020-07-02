@@ -1,7 +1,7 @@
 /*
  * WebExtension - Client
  *
- * Version 0.0.1
+ * Version 0.0.2
  * Masayuki Otoshi
  * Released under the Apache License 2.0.
  */

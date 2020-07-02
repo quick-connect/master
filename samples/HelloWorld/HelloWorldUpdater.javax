@@ -1,0 +1,23 @@
+package HelloWorld;
+
+import java.util.Map;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import webextension.ResponseHtmlUpdater;
+import webextension.annotation.WebExtensionFilter;
+
+@WebExtensionFilter(contentType="text/html", servletPath="/HelloWorld/")
+public class HelloWorldUpdater extends ResponseHtmlUpdater {
+
+  public boolean update(Map<String, String> context, Document document) throws Exception {
+    Element p = document.selectFirst("p");
+    if (p == null) return false;
+
+    p.before(
+        #<button onClick='alert("Hello, World!");return false;'>
+            Say Hello
+        </button>
+    );
+    return true;
+  }
+}

@@ -1,7 +1,6 @@
 <html>
 <head>
-<script src="../WebExtension.js"></script>
-<script src="AddressLookup.js"></script>
+<title>Address Lookup</title>
 </head>
 <body>
 
@@ -11,9 +10,11 @@ Address <input id="address" type="text" value="">
 
 <p>
   This example shows how to call a REST API and handle the response.<br>
-  The "Lookup" button was dynamically added by WebExtension when this page was loaded.<br>
-  When you click the button, an AddressLookup REST API is called through a HTTP proxy.<br>
-  Once the responce came back successfully, the address in the response is set to the form on this page.
+  Before sending the response HTML back to browser, AddressLookupUpdater is compiled and executed.<br>
+  Then, the Updater inserts two script tags in head tag (WebExtension.js and AddressLookup.js).<br>
+  Also it adds a Lookup button to fire lookup JavaScript function.<br>
+  When user clicks on the Lookup, lookup function is invoked and it calls AddressLookup REST APT and receives a response.<br>
+  Finally, the address in the response is set to the address form on the screen.
 </p>
 
 </body>

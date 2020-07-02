@@ -1,12 +1,3 @@
-WebExtension.addExtensionRegister(() => {
-  const target = document.querySelector('input[id=password]');
-  if (!target) return;
-  const button = document.querySelector('button[id=myButton]');
-  if (!button) {
-    target.insertAdjacentHTML('afterend', "<button id='myButton' onClick='openFrame();return false;'>Show suggestions</button>");
-  }
-});
-
 function openFrame() {
   // Define a URL of an external HTML with a parameter
   const password = document.querySelector('input[id=password]').value;

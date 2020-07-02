@@ -1,25 +1,26 @@
 /*
  * WebExtension - customizes the browsing web pages.
  *
- * Version 0.0.1
+ * Version 0.0.2
  * Masayuki Otoshi
  * Released under the Apache License 2.0.
  */
 (function() {
 var WebExtension = window.WebExtension = {
 
-  proxy: '/WebExtensionHttpProxy',
+  proxy: '/samples/WebExtensionHttpProxy',
   //proxy: '/pc/WebExtensionHttpProxy',
 
   extensionRegisters: [],
+  extensionHandlers: {},
   responseHandlers: {},
   _timerId: null,
 
-  openFrame: function(src, extensionPoint, options) {
+  openFrame: function(src, element, options) {
     if (!src) throw new Error('ERROR: openFrame: src parameter is mandatory.');
     options = options || {};
-    if (!extensionPoint) {
-      extensionPoint = document.getElementsByTagName('body')[0];
+    if (!element) {
+      element = document.getElementsByTagName('body')[0];
       options.position = options.position || 'beforeend';
       options.frameSize = options.frameSize || 'browser';
     }
@@ -47,15 +48,15 @@ var WebExtension = window.WebExtension = {
     } else if (frameSize === 'browser') {
       width = WebExtension._getBrowserWidth()+'px';
       height = WebExtension._getBrowserHeight()+'px';
-      style = ' position:absolute; top:0px; left:0px; background-color:'+(extensionPoint.style.backgroundColor||'white')+'; z-index:2147483647;';
+      style = ' position:absolute; top:0px; left:0px; background-color:'+(element.style.backgroundColor||'white')+'; z-index:2147483647;';
     }
     if (options.style) style += ' ' + options.style;
-    extensionPoint.insertAdjacentHTML(position, '<iframe id="'+frameId+'" style="display:block; border:0px;'+style+'" width="'+width+'" height="'+height+'" src="'+src+'"></iframe>');
+    element.insertAdjacentHTML(position, '<iframe id="'+frameId+'" style="display:block; border:0px;'+style+'" width="'+width+'" height="'+height+'" src="'+src+'"></iframe>');
 
     webExtensionFrame = WebExtension.getFrameElement(frameId);
     webExtensionFrame.addEventListener("load", function(event) {
       window.parent.WebExtension.setExtensionRegistersTimer();
-      if (typeof(options.onload) === 'function') options.onload();
+      if (typeof(options.onload) === 'function') options.onload(frameId);
     });
 
     if (frameSize === 'browser') {
@@ -99,9 +100,15 @@ var WebExtension = window.WebExtension = {
         url = proxy+'?'+url;
       }
 
+      if (options.responseType === 'xml') {
+        options.responseType = 'document';
+        options.overrideMimeType = 'text/xml';
+      }
+
       const xhr = new XMLHttpRequest();
       xhr.open(method, url, true);
       xhr.responseType = options.responseType || 'text';
+      if (options.overrideMimeType) xhr.overrideMimeType(options.overrideMimeType);
       if (method === 'POST') {
         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         try {
@@ -114,11 +121,16 @@ var WebExtension = window.WebExtension = {
       }
 
       xhr.onload = function() {
-        let response = xhr.response;
-        if (typeof response === 'string') {
-          try {
-            response = JSON.parse(response);
-          } catch (e) {}
+        let response;
+        if (options.overrideMimeType === 'text/xml') {
+          response = xhr.responseXML;
+        } else {
+          response = xhr.response;
+          if (typeof response === 'string') {
+            try {
+              response = JSON.parse(response);
+            } catch (e) {}
+          }
         }
         if (xhr.status === 200) {
           if (typeof(resolve) === 'function') return resolve(response);
@@ -169,6 +181,16 @@ var WebExtension = window.WebExtension = {
     WebExtension.extensionRegisters.push(func);
   },
 
+  addExtensionHandler: function(extensionId, func) {
+    if (!extensionId || !func || typeof(func) !== 'function') throw new Error('ERROR: addExtensionHandler: extensionId('+extensionId+') and func parameters are mandatory.');
+    WebExtension.extensionHandlers[extensionId] = func;
+  },
+
+  invokeExtensionHandler: function(extensionId) {
+    const func = WebExtension.extensionHandlers[extensionId];
+    if (typeof(func) === 'function') func(extensionId);
+  },
+
   addResponseHandler: function(responseId, func) {
     if (!responseId || !func || typeof(func) !== 'function') throw new Error('ERROR: addResponseHandler: responseId('+responseId+') and func parameters are mandatory.');
     WebExtension.responseHandlers[responseId] = func;
@@ -184,12 +206,14 @@ var WebExtension = window.WebExtension = {
         } catch (err) {
           console.error(err);
         }
+      } else {
+        throw new Error('ERROR: registered extension handler is not function. registerId='+key);
       }
     });
 
     WebExtension._timerId = setTimeout(WebExtension._registerExtensionRegisters, 1000);
   },
-  
+
   setExtensionRegistersTimer: function() {
     WebExtension.clearExtensionRegistersTimer();
     WebExtension._registerExtensionRegisters();
@@ -200,6 +224,10 @@ var WebExtension = window.WebExtension = {
       clearTimeout(WebExtension._timerId);
       WebExtension._timerId = null;
     }
+  },
+
+  initialize: function() {
+    WebExtension.setExtensionRegistersTimer();
   },
 
   _getBrowserWidth: function() {
@@ -224,7 +252,6 @@ var WebExtension = window.WebExtension = {
     return 0;
   }
 };
-
 })();
 
 window.addEventListener("message", function(event) {
@@ -265,10 +292,10 @@ window.addEventListener("message", function(event) {
   }
 });
 
-window.addEventListener("load", function() {
-  WebExtension._registerExtensionRegisters();
-});
-
 window.addEventListener("unload", function() {
   WebExtension.clearExtensionRegistersTimer();
+});
+
+window.addEventListener("load", function() {
+  WebExtension.initialize();
 });

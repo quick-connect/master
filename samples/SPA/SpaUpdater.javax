@@ -1,0 +1,25 @@
+package SPA;
+
+import java.util.Map;
+import org.jsoup.nodes.Document;
+import webextension.ResponseStringUpdater;
+import webextension.annotation.WebExtensionFilter;
+
+@WebExtensionFilter(contentType="/javascript", servletPath="/SPA/spa.js")
+public class SpaUpdater extends ResponseStringUpdater {
+
+  public String update(Map<String, String> context, String content) throws Exception {
+    return content.replace(`</h2>";`, `</h2>";
+      if (pageNo == 4) {
+        const target = document.getElementById('page4');
+        target.insertAdjacentHTML('afterend', "<button id='myButton4A' onClick=\\"alert('Hello, World!');return false;\\">Say Hello on page 4</button>");
+        target.parentNode.insertAdjacentHTML('afterend', "<button id='myButton4B' onClick=\\"alert('Bye, World!');return false;\\">Say Bye on page 4</button>");
+      } else {
+        let target = document.getElementById('myButton4A');
+        if (target) target.parentNode.removeChild(target);
+        target = document.getElementById('myButton4B');
+        if (target) target.parentNode.removeChild(target);
+      }
+    `);
+  }
+}

@@ -1,17 +1,3 @@
-WebExtension.addExtensionRegister(() => {
-  const target = document.getElementById('number');
-  if (!target) return;
-
-  const subButton = document.getElementById('subButton');
-  if (!subButton) {
-    target.insertAdjacentHTML('afterend', "<button id='subButton' onClick='sub();return false;'>Sub</button>");
-  }
-  const addButton = document.getElementById('addButton');
-  if (!addButton) {
-    target.insertAdjacentHTML('afterend', "<button id='addButton' onClick='add();return false;'>Add</button>");
-  }
-});
-
 function add() {
   const number = document.getElementById('number').value;
   const target = document.getElementById('subButton');

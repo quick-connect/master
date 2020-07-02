@@ -2,8 +2,7 @@
          import="java.io.*,java.util.*" %>
 <html>
 <head>
-<script src="../WebExtension.js"></script>
-<script src="PostData.js"></script>
+<title>Post Data</title>
 </head>
 <body>
 <h3>Access Log</h3>
